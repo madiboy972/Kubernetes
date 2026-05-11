@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.nginxAdmin.name }}-html
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    app: {{ .Values.nginxAdmin.name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+data:
+  index.html: |
+    {{ .Values.nginxAdmin.content | nindent 4 }}
