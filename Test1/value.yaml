@@ -1,0 +1,59 @@
+# Namespace
+namespace:
+  name: nginx-apps
+
+# Image commune
+image:
+  repository: nginx
+  tag: "1.25-alpine"
+  pullPolicy: IfNotPresent
+
+# Nginx Main
+nginxMain:
+  name: nginx-main
+  replicaCount: 2
+  port: 80
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+  content: |
+    <!DOCTYPE html>
+    <html>
+      <head><title>Nginx Main</title></head>
+      <body>
+        <h1>🌐 Bienvenue sur Nginx MAIN</h1>
+        <p>Page publique par défaut</p>
+      </body>
+    </html>
+
+# Nginx Admin
+nginxAdmin:
+  name: nginx-admin
+  replicaCount: 1
+  port: 80
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+  content: |
+    <!DOCTYPE html>
+    <html>
+      <head><title>Nginx Admin</title></head>
+      <body>
+        <h1>🔐 Bienvenue sur Nginx ADMIN</h1>
+        <p>Interface d'administration</p>
+      </body>
+    </html>
+
+# Ingress
+ingress:
+  host: nginx.local
+  adminHeaderKey: "admin"
+  adminHeaderValue: "on"
