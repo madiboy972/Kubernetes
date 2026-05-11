@@ -1,0 +1,51 @@
+---
+# Middleware Traefik : détection du header admin
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: admin-header-check
+  namespace: {{ .Values.namespace.name }}
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-For: ""
+
+---
+# IngressRoute pour nginx-admin (si header admin: on)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-admin-route
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: "Host(`{{ .Values.ingress.host }}`) && Headers(`{{ .Values.ingress.adminHeaderKey }}`, `{{ .Values.ingress.adminHeaderValue }}`)"
+      kind: Rule
+      priority: 20
+      services:
+        - name: {{ .Values.nginxAdmin.name }}-svc
+          port: 80
+
+---
+# IngressRoute pour nginx-main (route par défaut)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-main-route
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: "Host(`{{ .Values.ingress.host }}`)"
+      kind: Rule
+      priority: 10
+      services:
+        - name: {{ .Values.nginxMain.name }}-svc
+          port: 80
