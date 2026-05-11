@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.nginxAdmin.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    app: {{ .Values.nginxAdmin.name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  replicas: {{ .Values.nginxAdmin.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.nginxAdmin.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.nginxAdmin.name }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.nginxAdmin.port }}
+          resources:
+            {{- toYaml .Values.nginxAdmin.resources | nindent 12 }}
+          volumeMounts:
+            - name: html-content
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.nginxAdmin.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.nginxAdmin.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+      volumes:
+        - name: html-content
+          configMap:
+            name: {{ .Values.nginxAdmin.name }}-html
