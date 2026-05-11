@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.nginxMain.name }}-svc
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    app: {{ .Values.nginxMain.name }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+spec:
+  selector:
+    app: {{ .Values.nginxMain.name }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.nginxMain.port }}
+  type: ClusterIP
